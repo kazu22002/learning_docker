@@ -1,0 +1,53 @@
+version: '3'
+services:
+
+### Applications Code Container #############################
+
+    php7:
+      build: ./php7
+      depends_on:
+        - postgres
+      volumes:
+        - ./src/html:/var/www/html
+
+    nginx: # php-fpmにリバースプロキシする
+      build: ./nginx
+      depends_on:
+        - php7
+      tty: true
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - ./logs/nginx:/var/log/nginx
+        - ./nginx/sites/default.conf:/etc/nginx/conf.d/default.conf
+        - ./src/html:/var/www/html
+
+    postgres:
+      build: ./postgres
+      volumes:
+        - db-data:/var/lib/postgresql/data
+      ports:
+        - "${POSTGRES_PORT}:5432"
+      environment:
+        - POSTGRES_DB=${POSTGRES_DB}
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+    pgadmin:
+      build: ./pgadmin
+      ports:
+        - "5050:5050"
+      volumes:
+        - ./pgadmin/pgadmin-backup:/var/lib/pgadmin/storage/pgadmin4
+      depends_on:
+        - postgres
+
+    composer: # composerコマンドを実行するときに都度実行
+      build: ./composer
+
+    npm: # npmコマンドを実行するときに都度実行
+      build: ./npm
+
+volumes:
+  db-data:
