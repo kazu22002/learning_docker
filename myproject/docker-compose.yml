@@ -45,9 +45,13 @@ services:
 
     composer: # composerコマンドを実行するときに都度実行
       build: ./composer
+      volumes:
+        - ./src/html:/var/www/html
 
     npm: # npmコマンドを実行するときに都度実行
       build: ./npm
+      volumes:
+        - ./src/html:/var/www/html
 
 volumes:
   db-data:
