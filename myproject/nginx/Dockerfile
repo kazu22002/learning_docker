@@ -1,7 +1,10 @@
 FROM nginx:1.15.3-alpine
 
 # ツールをインストール
-RUN apk --update add openssl
+RUN apk --update add openssl tzdata \
+    && cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
+    && apk del tzdata \
+    && rm -rf /var/cache/apk/*
 
 # ルートディレクトリを作成
 RUN mkdir -p /var/www/html
